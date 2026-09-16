@@ -60,7 +60,7 @@ export function Board({ me, users, doc }: { me: string; users: string[]; doc: Y.
 
   const move = (e: PointerEvent<SVGSVGElement>) => {
     const p = toBoard(e)
-    client.emit('cursor', { from: me, ...p })
+    client.emit('move', p)
     const a = start.current
     if (a === null) return
     const box = { x: Math.min(a.x, p.x), y: Math.min(a.y, p.y), w: Math.abs(p.x - a.x), h: Math.abs(p.y - a.y) }

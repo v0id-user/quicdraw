@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { api, colorOf } from './api.ts'
-import type { Dm, Line } from './Room.tsx'
+import type { Dm, Line } from '../shared/contract.ts'
 
 interface Props {
   me: string
@@ -11,7 +11,7 @@ interface Props {
 
 // `peer` null is the public room; a name is a private conversation with that user.
 export function Chat({ me, users, lines, dms }: Props) {
-  const native = api.useNative()
+  const client = api.useClient()
   const [peer, setPeer] = useState<string | null>(null)
   const [body, setBody] = useState('')
   const [note, setNote] = useState('')
@@ -27,13 +27,13 @@ export function Chat({ me, users, lines, dms }: Props) {
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     const text = body.trim()
-    if (text === '' || native === null) return
+    if (text === '') return
     setBody('')
     setNote('')
     try {
       const ok = peer === null
-        ? await native.call('say', { body: text })
-        : await native.call('whisper', { to: peer, body: text })
+        ? await client.call('say', { body: text })
+        : await client.call('whisper', { to: peer, body: text })
       if (!ok) setNote(`${peer} is offline`)
     } catch (err) {
       setNote((err as Error).message)

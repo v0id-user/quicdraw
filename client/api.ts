@@ -1,7 +1,7 @@
 import { createHooks } from '@transport-io/react'
 import type { AppMap } from '../shared/contract.ts'
 
-export const api = createHooks<AppMap>()
+export const api = createHooks<AppMap>({ fallback: false })
 
 export function colorOf(name: string): string {
   let hash = 0

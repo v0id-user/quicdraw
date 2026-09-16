@@ -6,10 +6,10 @@
       "name": "quicdraw",
       "dependencies": {
         "@fails-components/webtransport-transport-http3-quiche": "1.6.8",
-        "@transport-io/react": "^0.3.2",
+        "@transport-io/react": "^0.4.0",
         "react": "^19.3.0",
         "react-dom": "^19.3.0",
-        "transport-io": "^0.10.0",
+        "transport-io": "^0.11.0",
         "yjs": "^13.6.32",
         "zod": "^4.6.5",
       },
@@ -79,7 +79,7 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@transport-io/react": ["@transport-io/react@0.3.2", "", { "peerDependencies": { "react": ">=19.2", "react-dom": ">=19.2", "transport-io": "^0.10.0" } }, "sha512-p0+TWXsWfxGqOhrY033KGpxkXM/xaMedKys7u/exo/ORhMDO7/Pa3QGLInQRyuDfu1hXxxdNtCjVfZEo3U6YOA=="],
+    "@transport-io/react": ["@transport-io/react@0.4.0", "", { "peerDependencies": { "react": ">=19.2", "react-dom": ">=19.2", "transport-io": "^0.11.0" } }, "sha512-BswjtSoNc1byweeIsLv28L+3kGwdcDsYtYO4B/oXnFi0XkQ3R0VjQI0yiFJXpMZG9KETEhVZ3tQNOliKSL72yA=="],
 
     "@types/bun": ["@types/bun@1.4.2", "", { "dependencies": { "bun-types": "1.4.2" } }, "sha512-GimotNn7+ZV0uVArItBbriZsR1oNf0+WTzPkdcFrzShI7k2norL0uzEaJT8T33dWr7O/c9ZDuAFQrctKCi72oQ=="],
 
@@ -305,7 +305,7 @@
 
     "tinyglobby": ["tinyglobby@0.2.17", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.4" } }, "sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g=="],
 
-    "transport-io": ["transport-io@0.10.0", "", { "dependencies": { "@fails-components/webtransport": "1.6.8", "@standard-schema/spec": "^1.1.0", "ws": "^8.21.3" }, "optionalDependencies": { "@moq/web-transport-darwin-arm64": "0.1.4", "@moq/web-transport-darwin-x64": "0.1.4", "@moq/web-transport-linux-arm64-gnu": "0.1.4", "@moq/web-transport-linux-x64-gnu": "0.1.4", "@moq/web-transport-win32-x64-msvc": "0.1.4" }, "bin": { "transport-io": "dist/cli/main.node.js" } }, "sha512-ybeRPS+a9C/Z28vAQsbHqMpGLnUT4jvIaT1aYcl9DzFZWLvaywb2/4EObi0qZmhnBHNRraEZMVtJLq7TdZPBIw=="],
+    "transport-io": ["transport-io@0.11.0", "", { "dependencies": { "@fails-components/webtransport": "1.6.8", "@standard-schema/spec": "^1.1.0", "ws": "^8.21.3" }, "optionalDependencies": { "@moq/web-transport-darwin-arm64": "0.1.4", "@moq/web-transport-darwin-x64": "0.1.4", "@moq/web-transport-linux-arm64-gnu": "0.1.4", "@moq/web-transport-linux-x64-gnu": "0.1.4", "@moq/web-transport-win32-x64-msvc": "0.1.4" }, "bin": { "transport-io": "dist/cli/main.node.js" } }, "sha512-M1J54Tl4C/ecAORHCwXkEZFA4ZKIuAka+HFXsLJJxOK4A8HZuRKXZdUqqS5P0YWAvWDHqZQ84M/4Qet9USNVdA=="],
 
     "tunnel-agent": ["tunnel-agent@0.6.0", "", { "dependencies": { "safe-buffer": "^5.0.1" } }, "sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w=="],
 

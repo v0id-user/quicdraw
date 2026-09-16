@@ -1,5 +1,5 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
-import { leadingZeroBits } from '../shared/encoding.ts'
+import { leadingZeroBits } from '../shared/pow.ts'
 
 export const DIFFICULTY = 16
 export const SESSION_SECONDS = 24 * 60 * 60

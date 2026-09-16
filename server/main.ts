@@ -1,8 +1,7 @@
-import { createServer, type ServerPeer } from 'transport-io'
+import { createServer } from 'transport-io'
 import { listenDev } from 'transport-io/node-transport'
 import * as Y from 'yjs'
-import { type AppMap, contract } from '../shared/contract.ts'
-import { fromBase64, toBase64 } from '../shared/encoding.ts'
+import { type AppMap, contract, type Line } from '../shared/contract.ts'
 import { startApi } from './api.ts'
 import { verify } from './auth.ts'
 
@@ -10,82 +9,73 @@ const API_PORT = 8787
 const BOARD = 'board'
 const inbox = (name: string) => `user:${name}`
 
-const server = createServer<AppMap>({ contract })
+const server = createServer<AppMap, { name: string }>({ contract })
 const doc = new Y.Doc()
-const names = new WeakMap<ServerPeer<AppMap>, string>()
 const online = new Set<string>()
-const history: AppMap['chat']['payload'][] = []
-
-function nameOf(peer: ServerPeer<AppMap>): string {
-  const name = names.get(peer)
-  if (name === undefined) throw new Error('say hello first')
-  return name
-}
+const history: Line[] = []
 
 function publishUsers() {
   void server.to(BOARD).emit('users', { names: [...online].sort() })
 }
 
-server.handle('hello', async ({ token }, { peer }) => {
-  const name = verify(token)
-  if (name === null) throw new Error('bad or expired token')
-  names.set(peer, name)
-  // Sent before joining, so they arrive ahead of any live broadcast on the same stream.
-  for (const msg of history) peer.emit('chat', msg)
-  peer.emit('doc', { update: toBase64(Y.encodeStateAsUpdate(doc)) })
-  await peer.join(BOARD)
-  await peer.join(inbox(name))
-  online.add(name)
-  publishUsers()
-  return { name }
-})
-
 server.handle('say', async ({ body }, { peer }) => {
-  const msg = { from: nameOf(peer), body, at: Date.now() }
-  history.push(msg)
+  const line = { from: peer.data.name, body, at: Date.now() }
+  history.push(line)
   if (history.length > 50) history.shift()
-  await server.to(BOARD).emit('chat', msg)
+  await server.to(BOARD).emit('chat', line)
   return true
 })
 
 server.handle('whisper', async ({ to, body }, { peer }) => {
-  const from = nameOf(peer)
+  const from = peer.data.name
   if (to === from || server.memberCount(inbox(to)) === 0) return false
-  const msg = { from, to, body, at: Date.now() }
-  await server.to(inbox(to)).emit('dm', msg)
-  await server.to(inbox(from)).emit('dm', msg)
+  const dm = { from, to, body, at: Date.now() }
+  await server.to(inbox(to)).emit('dm', dm)
+  await server.to(inbox(from)).emit('dm', dm)
   return true
 })
 
 server.onSession((peer) => {
-  setTimeout(() => {
-    if (!names.has(peer)) peer.close()
-  }, 10_000)
+  const { name } = peer.data
 
-  peer.on('cursor', ({ x, y }) => {
-    const from = names.get(peer)
-    if (from !== undefined) void server.to(BOARD).except(peer.id).emit('cursor', { from, x, y })
+  // Sent before joining, so they arrive ahead of anything the rooms broadcast.
+  peer.emit('history', history)
+  peer.emit('doc', Y.encodeStateAsUpdate(doc))
+  Promise.all([peer.join(BOARD), peer.join(inbox(name))]).then(
+    () => {
+      online.add(name)
+      publishUsers()
+    },
+    () => {}, // The peer left before joining.
+  )
+
+  void peer.closed.then(() => {
+    if (server.memberCount(inbox(name)) === 0 && online.delete(name)) publishUsers()
   })
 
-  peer.on('doc', ({ update }) => {
-    if (!names.has(peer)) return
+  peer.on('move', ({ x, y }) => {
+    void server.to(BOARD).except(peer.id).emit('cursor', { from: name, x, y })
+  })
+
+  peer.on('doc', (update) => {
     try {
-      Y.applyUpdate(doc, fromBase64(update))
+      Y.applyUpdate(doc, update)
     } catch {
       return
     }
-    void server.to(BOARD).except(peer.id).emit('doc', { update })
+    void server.to(BOARD).except(peer.id).emit('doc', update)
   })
 })
 
 startApi(API_PORT)
-await server.listen(await listenDev())
 
-// There is no disconnect callback, so presence is read back from room membership.
-setInterval(() => {
-  const before = online.size
-  for (const name of online) if (server.memberCount(inbox(name)) === 0) online.delete(name)
-  if (online.size !== before) publishUsers()
-}, 2000)
+const listener = await listenDev({
+  // Browsers send no cookies on WebTransport, so the page puts its token in the URL.
+  authorize: ({ query }) => {
+    const name = verify(query.get('token') ?? '')
+    return name === null ? null : { name }
+  },
+})
+await server.listen(listener)
 
 console.log(`quicdraw ready. api on :${API_PORT}, page on http://localhost:5173`)

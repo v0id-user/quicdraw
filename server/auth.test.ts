@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { expect, test } from 'bun:test'
-import { leadingZeroBits } from '../shared/encoding.ts'
+import { leadingZeroBits } from '../shared/pow.ts'
 import { DIFFICULTY, issueChallenge, redeem, sign, verify } from './auth.ts'
 
 function solve(salt: string): string {

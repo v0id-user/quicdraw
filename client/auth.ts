@@ -1,4 +1,4 @@
-import { leadingZeroBits } from '../shared/encoding.ts'
+import { leadingZeroBits } from '../shared/pow.ts'
 
 export interface Session {
   name: string

@@ -32,7 +32,7 @@ async function readSolution(req: IncomingMessage): Promise<{ salt: string; nonce
 }
 
 // WebTransport requests carry no cookies, so the page reads its token here
-// and presents it to the realtime server in `hello`.
+// and puts it in the WebTransport URL for `authorize`.
 export function startApi(port: number) {
   const server = createServer(async (req, res) => {
     const route = `${req.method} ${req.url}`
