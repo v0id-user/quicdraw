@@ -36,14 +36,14 @@ Everyone in one browser shares a cookie and so a name. Use a private window or a
 ```bash
 brew install flyctl
 fly auth login
-export TF_VAR_fly_api_token="$(fly auth token)"
+export TF_VAR_fly_api_token="$(fly tokens create org -o personal)"
 terraform -chdir=infra/fly init
 terraform -chdir=infra/fly apply
 fly secrets set --stage QUICDRAW_SECRET="$(openssl rand -hex 32)" PUBLIC_IPV4="$(terraform -chdir=infra/fly output -raw ipv4)"
 fly deploy --ha=false
 ```
 
-Then open https://quicdraw.fly.dev. If the name `quicdraw` is taken, pass `-var app_name=<name>` to Terraform and change `app` in `fly.toml` to match.
+Then open https://quicdraw.fly.dev, which is where this is deployed. If the name `quicdraw` is taken, pass `-var app_name=<name>` to Terraform and change `app` in `fly.toml` to match.
 
 What's different from dev:
 
@@ -52,6 +52,7 @@ What's different from dev:
 - **The server mints its own certificate.** Fly can't terminate TLS for UDP, so on startup the server creates a 13-day self-signed certificate. It serves the hash at `/api/transport` over Fly's HTTPS, and the page pins it, as in dev.
 - **The server restarts itself every 12 days** so the certificate never expires. Fly's restart policy brings it back, and the board and chat reset.
 - **One machine, always on.** Rooms live in memory, so `--ha=false` and auto-stop off.
+- **Terraform's state file lives only on the machine that ran it**, at `infra/fly/terraform.tfstate`, and git ignores it.
 
 Try the production build locally:
 

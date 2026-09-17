@@ -35,6 +35,25 @@ No library can suppress that. The authorize guide and SECURITY.md could say it, 
 - A newcomer sees nobody's cursor until that person moves.
 - Cursors of people who left stay in client state, so the page filters them against the online list.
 
+## Deploying on Fly, which works
+
+KNOWN-ISSUES says many managed platforms give you no UDP ingress, and that it is the first
+thing to check. Fly does, with conditions worth writing down somewhere:
+
+- A **dedicated IPv4** is required, about $2 a month. Fly routes no UDP over shared IPv4 or
+  over IPv6 at all, so the page dials the address rather than the `fly.dev` name.
+- The app binds UDP to **`fly-global-services`**, and the external and internal ports must
+  match. Fly rewrites the address but never the port.
+- Fly terminates TLS for TCP only, so a deployed app there has **no CA certificate for its
+  UDP port**. quicdraw mints a 13-day certificate at startup, serves the hash over Fly's
+  HTTPS, and pins it in the browser, which is the dev recipe used in production. The
+  certificates guide presents pinning as a development-only path; this is a real case for
+  it, and the deploy runbook in `examples/chat/deploy` assumes a VPS with certbot instead.
+- The listener cannot swap certificates, so the process exits before the 13 days are up and
+  the platform restarts it.
+
+Verified live: a browser holds a session to `quicdraw.fly.dev` over Fly's UDP.
+
 ## Where things ended up
 
 Across four releases, the hand-written plumbing quicdraw needed went away piece by piece:
