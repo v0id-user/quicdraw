@@ -32,7 +32,7 @@ function cookieFor(token: string, maxAge: number, secure: boolean): string {
 }
 
 // The page is one index.html, so anything that isn't a built file gets it.
-async function serveStatic(dir: string, pathname: string, res: ServerResponse) {
+async function serveStatic(dir: string, pathname: string, res: ServerResponse, headOnly = false) {
   const root = resolve(dir)
   const file = resolve(root, `.${pathname}`)
   const isFile = file.startsWith(root + sep) && (await stat(file).then((s) => s.isFile(), () => false))
@@ -42,6 +42,7 @@ async function serveStatic(dir: string, pathname: string, res: ServerResponse) {
     'content-type': TYPES[extname(target)] ?? 'application/octet-stream',
     'cache-control': immutable ? 'public, max-age=31536000, immutable' : 'no-cache',
   })
+  if (headOnly) return res.end()
   createReadStream(target).pipe(res)
 }
 
@@ -69,7 +70,9 @@ async function readSolution(req: IncomingMessage): Promise<{ salt: string; nonce
 export function startApi({ port, host, secure, transport, staticDir }: ApiOptions) {
   const server = createServer(async (req, res) => {
     const { pathname } = new URL(req.url ?? '/', 'http://localhost')
-    const route = `${req.method} ${pathname}`
+    // A HEAD is a GET whose body is dropped, which is what a health probe sends.
+    const method = req.method === 'HEAD' ? 'GET' : req.method
+    const route = `${method} ${pathname}`
 
     if (route === 'GET /api/health') return send(res, 200, { ok: true })
     if (route === 'GET /api/transport' && transport) return send(res, 200, transport)
@@ -95,7 +98,7 @@ export function startApi({ port, host, secure, transport, staticDir }: ApiOption
       return send(res, 200, {}, { 'set-cookie': cookieFor('', 0, secure) })
     }
 
-    if (staticDir && req.method === 'GET' && !pathname.startsWith('/api/')) return serveStatic(staticDir, pathname, res)
+    if (staticDir && method === 'GET' && !pathname.startsWith('/api/')) return serveStatic(staticDir, pathname, res, req.method === 'HEAD')
     send(res, 404, { error: 'not found' })
   })
   server.listen(port, host)

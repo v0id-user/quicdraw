@@ -4,6 +4,7 @@ import { Client } from 'transport-io'
 import { type AppMap, contract } from '../shared/contract.ts'
 import { type Session, signIn, signOut } from './auth.ts'
 import { connectWith } from './connect.ts'
+import { Quicdraw } from './Mark.tsx'
 import { Room } from './Room.tsx'
 
 export function App() {
@@ -25,8 +26,16 @@ export function App() {
   if (session === null) {
     return (
       <div className="splash">
+        <Quicdraw size={30} />
         <h1>quicdraw</h1>
-        <p>{failed ? 'Could not sign in. Reload to try again.' : `proving work… ${tries.toLocaleString()} hashes`}</p>
+        {failed ? (
+          <p className="error">Could not sign in. Reload to try again.</p>
+        ) : (
+          <>
+            <div className="work" role="progressbar" aria-label="proving work" />
+            <p className="tabular">proving work, {tries.toLocaleString()} hashes</p>
+          </>
+        )}
       </div>
     )
   }

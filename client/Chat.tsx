@@ -55,7 +55,8 @@ export function Chat({ me, users, lines, dms }: Props) {
           return (
             <li key={name}>
               <button type="button" aria-pressed={peer === name} onClick={() => setPeer(name)}>
-                <span style={{ color: colorOf(name) }}>●</span> {name}
+                <span className="dot" style={{ color: colorOf(name) }} />
+                <span className="name">{name}</span>
                 {unread > 0 && peer !== name && <b className="unread">{unread}</b>}
               </button>
             </li>
@@ -63,14 +64,17 @@ export function Chat({ me, users, lines, dms }: Props) {
         })}
       </ul>
       <div className="log">
+        {shown.length === 0 && (
+          <p className="empty">{peer === null ? 'no messages yet' : `no messages with ${peer}`}</p>
+        )}
         {shown.map((m) => (
-          <div key={`${m.at}-${m.from}`}>
-            <span className="dim">{new Date(m.at).toLocaleTimeString([], { timeStyle: 'short' })}</span>{' '}
-            <b style={{ color: colorOf(m.from) }}>{m.from}</b> {m.body}
+          <div className="line" key={`${m.at}-${m.from}`}>
+            <span className="at">{new Date(m.at).toLocaleTimeString([], { timeStyle: 'short' })}</span>{' '}
+            <b className="who" style={{ color: colorOf(m.from) }}>{m.from}</b> {m.body}
           </div>
         ))}
       </div>
-      {note && <p className="error">{note}</p>}
+      {note && <p className="note">{note}</p>}
       <form onSubmit={submit}>
         <input
           value={body}

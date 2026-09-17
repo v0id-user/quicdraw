@@ -4,6 +4,7 @@ import type { Dm, Line } from '../shared/contract.ts'
 import { api, colorOf } from './api.ts'
 import { Board } from './Board.tsx'
 import { Chat } from './Chat.tsx'
+import { Quicdraw, TransportIo } from './Mark.tsx'
 import { forUser, logError } from './messages.ts'
 
 // Listeners live here, above the connection, so nothing a session sends first is missed.
@@ -60,14 +61,24 @@ export function Room({ me, renew }: { me: string; renew: () => Promise<void> }) 
   return (
     <div className="room">
       <header>
-        <strong>quicdraw</strong>
-        <span className="dim" data-state={status}>{status}</span>
-        <span>
-          you are <b style={{ color: colorOf(me) }}>{me}</b>{' '}
+        <span className="wordmark">
+          <Quicdraw />
+          quicdraw
+        </span>
+        <span className="state" data-state={status}>
+          {status}
+        </span>
+        <span className="whoami">
+          <span className="dot" style={{ color: colorOf(me) }} />
+          <b>{me}</b>
           <button type="button" onClick={reroll} disabled={renewing}>
             {renewing ? 'proving work…' : 'new name'}
           </button>
         </span>
+        <a className="credit" href="https://github.com/transport-io/transport-io" target="_blank" rel="noreferrer">
+          <TransportIo />
+          on transport-io
+        </a>
       </header>
       {status === 'connected' ? (
         <main>

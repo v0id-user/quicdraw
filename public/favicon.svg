@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .tile { fill: #e4e0d6 }
+    .ink { fill: none; stroke: #16130f; stroke-width: 3 }
+    .dot { fill: #c2551d }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #141210 }
+      .ink { stroke: #e7e2d6 }
+      .dot { fill: #d9692c }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="7" />
+  <rect class="ink" x="6.5" y="6.5" width="14" height="14" />
+  <circle class="dot" cx="22" cy="22" r="5.5" />
+</svg>

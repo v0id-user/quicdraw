@@ -17,7 +17,7 @@ Everyone in one browser shares a cookie and so a name. Use a private window or a
 
 - **Sign in.** The page asks `/api/challenge` for a salt and finds a nonce whose SHA-256 starts with 16 zero bits. `/api/solve` checks it, derives a name from the winning hash, and sets a signed cookie for a day. A page with a valid cookie skips the puzzle. "new name" clears the cookie and solves a fresh one without reloading, so the board stays.
 - **Joining the room.** WebTransport requests carry no cookies, so `/api/session` hands the page its token and the page puts it in the WebTransport URL. The server's `authorize` checks it before accepting the session, so a peer without a valid token never gets in.
-- **Board.** Shapes live in a Yjs array, and updates travel as raw bytes on the reliable lane. The server keeps its own copy for newcomers. Cursors go over datagrams and may drop.
+- **Board.** Pick rect or ellipse and drag to draw, with a live outline and size while you drag. The select tool moves a shape, Escape returns to it, and Delete removes what's selected. Shapes live in a Yjs array and travel as raw bytes on the reliable lane, so a move syncs while it happens. The server keeps its own copy for newcomers. Cursors go over datagrams and may drop.
 - **Chat.** Each session starts with the last 50 public messages. Each user is in a room named after them, so a private message is a broadcast to that room.
 - **Who is online.** The server drops a name when that user's last session closes.
 - **Reconnect.** The client retries on its own and sends its copy of the board back, so a restarted server gets the shapes again. Set `QUICDRAW_SECRET` to keep people signed in across server restarts.
@@ -62,6 +62,10 @@ PUBLIC_IPV4=127.0.0.1 bun run start
 ```
 
 Then open http://localhost:8080.
+
+## Design
+
+The palette and the IBM Plex Mono wordmark come from [transport-io's brand assets](https://github.com/transport-io/transport-io/tree/main/assets/brand): ground, panel, ink and a single accent, in light and dark. Its mark belongs to that project, so quicdraw has its own glyph and uses the transport-io mark only for the credit link.
 
 ## Layout
 

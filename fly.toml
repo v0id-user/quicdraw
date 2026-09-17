@@ -17,7 +17,7 @@ primary_region = 'fra'
     path = '/api/health'
     interval = '30s'
     timeout = '5s'
-    grace_period = '10s'
+    grace_period = '20s'
 
 # WebTransport. Fly delivers UDP only to a dedicated IPv4, and never rewrites the port.
 [[services]]
