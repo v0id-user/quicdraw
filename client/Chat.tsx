@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { api, colorOf } from './api.ts'
+import { forUser, logError } from './messages.ts'
 import type { Dm, Line } from '../shared/contract.ts'
 
 interface Props {
@@ -36,7 +37,8 @@ export function Chat({ me, users, lines, dms }: Props) {
         : await client.call('whisper', { to: peer, body: text })
       if (!ok) setNote(`${peer} is offline`)
     } catch (err) {
-      setNote((err as Error).message)
+      logError(err)
+      setNote(`Not sent. ${forUser(err)}`)
     }
   }
 

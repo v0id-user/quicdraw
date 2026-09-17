@@ -9,7 +9,7 @@
         "@transport-io/react": "^0.4.1",
         "react": "^19.3.0",
         "react-dom": "^19.3.0",
-        "transport-io": "^0.12.0",
+        "transport-io": "^0.12.1",
         "yjs": "^13.6.32",
         "zod": "^4.6.5",
       },
@@ -305,7 +305,7 @@
 
     "tinyglobby": ["tinyglobby@0.2.17", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.4" } }, "sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g=="],
 
-    "transport-io": ["transport-io@0.12.0", "", { "dependencies": { "@fails-components/webtransport": "1.6.8", "@standard-schema/spec": "^1.1.0", "ws": "^8.21.3" }, "optionalDependencies": { "@moq/web-transport-darwin-arm64": "0.1.4", "@moq/web-transport-darwin-x64": "0.1.4", "@moq/web-transport-linux-arm64-gnu": "0.1.4", "@moq/web-transport-linux-x64-gnu": "0.1.4", "@moq/web-transport-win32-x64-msvc": "0.1.4" }, "bin": { "transport-io": "dist/cli/main.node.js" } }, "sha512-2qQM9NnWmagFVIFxNzu1AGekAhLKPB5VKEbk63F1+JDiAs6TUEdeSeT2yMSRYaUxchV37GkFn7YGHk5i5NIQPQ=="],
+    "transport-io": ["transport-io@0.12.1", "", { "dependencies": { "@fails-components/webtransport": "1.6.8", "@standard-schema/spec": "^1.1.0", "ws": "^8.21.3" }, "optionalDependencies": { "@moq/web-transport-darwin-arm64": "0.1.4", "@moq/web-transport-darwin-x64": "0.1.4", "@moq/web-transport-linux-arm64-gnu": "0.1.4", "@moq/web-transport-linux-x64-gnu": "0.1.4", "@moq/web-transport-win32-x64-msvc": "0.1.4" }, "bin": { "transport-io": "dist/cli/main.node.js" } }, "sha512-9m2S1ZogotAI2eBmi43qDT0tFkJNF4y8zjGLx4bxnJ1LQ7LpajfyjTpNMtHRQgFQU/3SZpkVSuxrdqRywQW3Kg=="],
 
     "tunnel-agent": ["tunnel-agent@0.6.0", "", { "dependencies": { "safe-buffer": "^5.0.1" } }, "sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w=="],
 

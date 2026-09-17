@@ -2,19 +2,15 @@ import { useEffect, useState } from 'react'
 import * as Y from 'yjs'
 import type { Dm, Line } from '../shared/contract.ts'
 import { api, colorOf } from './api.ts'
-import { signOut } from './auth.ts'
 import { Board } from './Board.tsx'
 import { Chat } from './Chat.tsx'
-
-async function reroll() {
-  await signOut()
-  location.reload()
-}
+import { forUser, logError } from './messages.ts'
 
 // Listeners live here, above the connection, so nothing a session sends first is missed.
-export function Room({ me }: { me: string }) {
+export function Room({ me, renew }: { me: string; renew: () => Promise<void> }) {
   const client = api.useClient()
-  const { status, lastError, refused } = api.useConnection()
+  const { status, lastError, refused, connect, disconnect } = api.useConnection()
+  const [renewing, setRenewing] = useState(false)
   const [doc] = useState(() => new Y.Doc())
   const [lines, setLines] = useState<Line[]>([])
   const [dms, setDms] = useState<Dm[]>([])
@@ -26,6 +22,27 @@ export function Room({ me }: { me: string }) {
   api.useEvent('dm', (dm) => setDms((prev) => [...prev, dm]))
   api.useEvent('users', ({ names }) => setUsers(names))
   api.useEvent('doc', (update) => Y.applyUpdate(doc, update, 'remote'))
+
+  // Private messages belong to a name, so a new name starts without them.
+  useEffect(() => setDms([]), [me])
+
+  useEffect(() => {
+    if (lastError) logError(lastError)
+  }, [lastError])
+
+  // The provider holds the connection, so the pair hands its hold back and takes it again.
+  const reroll = async () => {
+    setRenewing(true)
+    try {
+      await renew()
+      disconnect()
+      void connect().catch(() => {}) // A second refusal shows up in `refused`.
+    } catch (e) {
+      logError(e)
+    } finally {
+      setRenewing(false)
+    }
+  }
 
   useEffect(() => {
     const forward = (update: Uint8Array, origin: unknown) => {
@@ -47,9 +64,10 @@ export function Room({ me }: { me: string }) {
         <span className="dim" data-state={status}>{status}</span>
         <span>
           you are <b style={{ color: colorOf(me) }}>{me}</b>{' '}
-          <button type="button" onClick={reroll}>new name</button>
+          <button type="button" onClick={reroll} disabled={renewing}>
+            {renewing ? 'proving work…' : 'new name'}
+          </button>
         </span>
-        {lastError && !refused && status !== 'connected' && <span className="error">{lastError.message}</span>}
       </header>
       {status === 'connected' ? (
         <main>
@@ -60,11 +78,15 @@ export function Room({ me }: { me: string }) {
         <p className="splash">
           {refused ? (
             <span>
-              the server no longer accepts this name{' '}
-              <button type="button" onClick={reroll}>sign in again</button>
+              {forUser(lastError)}{' '}
+              <button type="button" onClick={reroll} disabled={renewing}>
+                {renewing ? 'proving work…' : 'sign in again'}
+              </button>
             </span>
+          ) : status === 'closed' && lastError ? (
+            `${forUser(lastError)} Retrying…`
           ) : status === 'closed' ? (
-            'offline, retrying…'
+            'Offline. Retrying…'
           ) : (
             'connecting…'
           )}
