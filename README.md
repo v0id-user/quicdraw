@@ -21,7 +21,7 @@ Everyone in one browser shares a cookie and so a name. Use a private window or a
 - **Chat.** Each session starts with the last 50 public messages. Each user is in a room named after them, so a private message is a broadcast to that room.
 - **Who is online.** The server drops a name when that user's last session closes.
 - **Reconnect.** The client retries on its own and sends its copy of the board back, so a restarted server gets the shapes again. Set `QUICDRAW_SECRET` to keep people signed in across server restarts.
-  In Chrome, transport-io 0.11.0 does not notice a connection that drops abruptly, so this only works after a clean close for now. [notes/transport-io-0.11.md](notes/transport-io-0.11.md) has the details.
+- **Refusal.** If the server stops accepting a token, the client stops retrying and the page offers "sign in again".
 
 | Process | Port |
 |---|---|

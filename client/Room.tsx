@@ -14,7 +14,7 @@ async function reroll() {
 // Listeners live here, above the connection, so nothing a session sends first is missed.
 export function Room({ me }: { me: string }) {
   const client = api.useClient()
-  const { status, lastError } = api.useConnection()
+  const { status, lastError, refused } = api.useConnection()
   const [doc] = useState(() => new Y.Doc())
   const [lines, setLines] = useState<Line[]>([])
   const [dms, setDms] = useState<Dm[]>([])
@@ -40,8 +40,6 @@ export function Room({ me }: { me: string }) {
     }
   }, [doc, client])
 
-  const refused = lastError?.code === 'WT_UNAUTHORIZED' && status !== 'connected'
-
   return (
     <div className="room">
       <header>
@@ -51,7 +49,7 @@ export function Room({ me }: { me: string }) {
           you are <b style={{ color: colorOf(me) }}>{me}</b>{' '}
           <button type="button" onClick={reroll}>new name</button>
         </span>
-        {lastError && status !== 'connected' && <span className="error">{lastError.message}</span>}
+        {lastError && !refused && status !== 'connected' && <span className="error">{lastError.message}</span>}
       </header>
       {status === 'connected' ? (
         <main>

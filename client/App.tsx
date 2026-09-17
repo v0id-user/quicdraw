@@ -1,20 +1,10 @@
 import { TransportProvider } from '@transport-io/react'
 import { useEffect, useState } from 'react'
 import { Client } from 'transport-io'
-import { connectBrowser } from 'transport-io/browser-transport'
+import { connectDev } from 'transport-io/dev-transport'
 import { type AppMap, contract } from '../shared/contract.ts'
 import { type Session, signIn } from './auth.ts'
 import { Room } from './Room.tsx'
-
-// connectDev takes no query string, so this reads the same dev manifest and adds the token.
-async function connectWithToken(token: string) {
-  const manifest = await (await fetch('/.well-known/transport-io-dev')).json()
-  return connectBrowser({
-    url: `${manifest.url}?token=${encodeURIComponent(token)}`,
-    certificateHash: new Uint8Array(manifest.sha256),
-    probe: false,
-  })
-}
 
 export function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -46,7 +36,7 @@ function Connected({ session }: { session: Session }) {
     () =>
       new Client<AppMap>({
         contract,
-        connect: () => connectWithToken(session.token),
+        connect: () => connectDev({ query: { token: session.token } }),
         reconnect: { minMs: 500, maxMs: 5000 },
       }),
   )

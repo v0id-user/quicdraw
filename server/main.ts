@@ -1,4 +1,4 @@
-import { createServer } from 'transport-io'
+import { createServer, refuse } from 'transport-io'
 import { listenDev } from 'transport-io/node-transport'
 import * as Y from 'yjs'
 import { type AppMap, contract, type Line } from '../shared/contract.ts'
@@ -73,7 +73,7 @@ const listener = await listenDev({
   // Browsers send no cookies on WebTransport, so the page puts its token in the URL.
   authorize: ({ query }) => {
     const name = verify(query.get('token') ?? '')
-    return name === null ? null : { name }
+    return name === null ? refuse('bad-token') : { name }
   },
 })
 await server.listen(listener)
