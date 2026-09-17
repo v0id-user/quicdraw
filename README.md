@@ -21,7 +21,7 @@ Everyone in one browser shares a cookie and so a name. Use a private window or a
 - **Chat.** Each session starts with the last 50 public messages. Each user is in a room named after them, so a private message is a broadcast to that room.
 - **Who is online.** The server drops a name when that user's last session closes.
 - **Reconnect.** The client retries on its own and sends its copy of the board back, so a restarted server gets the shapes again. Set `QUICDRAW_SECRET` to keep people signed in across server restarts.
-  In Chrome, transport-io 0.11.0 does not notice a connection that drops abruptly, so this only works after a clean close for now. [TRANSPORT-IO-NOTES.md](TRANSPORT-IO-NOTES.md) has the details.
+  In Chrome, transport-io 0.11.0 does not notice a connection that drops abruptly, so this only works after a clean close for now. [notes/transport-io-0.11.md](notes/transport-io-0.11.md) has the details.
 
 | Process | Port |
 |---|---|
@@ -35,6 +35,7 @@ Everyone in one browser shares a cookie and so a name. Use a private window or a
 - `shared/contract.ts` defines every message and which lane it takes.
 - `server/` holds the realtime server, the sign-in endpoints, and a small test for the puzzle and tokens.
 - `client/` holds the React app.
+- `notes/` holds feedback on transport-io from building this, one file per version.
 
 Everything is in memory and development only. Restarting the server clears the board and chat and signs everyone out.
 
