@@ -5,3 +5,5 @@ dist
 *.tfstate
 *.tfstate.*
 tfplan
+.agents
+.claude/skills
