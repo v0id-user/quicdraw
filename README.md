@@ -73,6 +73,7 @@ The palette and the IBM Plex Mono wordmark come from [transport-io's brand asset
 - `server/` holds the realtime server, the sign-in endpoints, and a small test for the puzzle and tokens.
 - `client/` holds the React app.
 - `notes/` holds feedback on transport-io from building this, one file per version.
+- `notes/fly-deploy-record.md` is what the deploy actually took, failures included.
 - `Dockerfile`, `fly.toml` and `infra/fly/` hold the deploy.
 
 Everything is in memory. Restarting the server clears the board and chat, and without `QUICDRAW_SECRET` it also signs everyone out.
