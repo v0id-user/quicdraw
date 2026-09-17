@@ -1,11 +1,14 @@
-import { createServer, refuse } from 'transport-io'
-import { listenDev } from 'transport-io/node-transport'
+import { lookup } from 'node:dns/promises'
+import { type Authorize, createServer, refuse } from 'transport-io'
+import { listenDev, listenHttp3 } from 'transport-io/node-transport'
 import * as Y from 'yjs'
 import { type AppMap, contract, type Line } from '../shared/contract.ts'
 import { startApi } from './api.ts'
 import { verify } from './auth.ts'
+import { CERT_DAYS, mintCertificate } from './cert.ts'
 
-const API_PORT = 8787
+const DAY = 24 * 60 * 60 * 1000
+const WT_PORT = 4433
 const BOARD = 'board'
 const inbox = (name: string) => `user:${name}`
 
@@ -37,7 +40,7 @@ server.handle('whisper', async ({ to, body }, { peer }) => {
 
 server.onSession((peer) => {
   const { name } = peer.data
-
+  
   // Sent before joining, so they arrive ahead of anything the rooms broadcast.
   peer.emit('history', history)
   peer.emit('doc', Y.encodeStateAsUpdate(doc))
@@ -67,15 +70,31 @@ server.onSession((peer) => {
   })
 })
 
-startApi(API_PORT)
+// Browsers send no cookies on WebTransport, so the page puts its token in the URL.
+const authorize: Authorize<{ name: string }> = ({ query }) => {
+  const name = verify(query.get('token') ?? '')
+  return name === null ? refuse('bad-token') : { name }
+}
 
-const listener = await listenDev({
-  // Browsers send no cookies on WebTransport, so the page puts its token in the URL.
-  authorize: ({ query }) => {
-    const name = verify(query.get('token') ?? '')
-    return name === null ? refuse('bad-token') : { name }
-  },
-})
-await server.listen(listener)
-
-console.log(`quicdraw ready. api on :${API_PORT}, page on http://localhost:5173`)
+if (process.env.NODE_ENV === 'production') {
+  const ip = process.env.PUBLIC_IPV4
+  if (!ip) throw new Error('PUBLIC_IPV4 is not set. It is the dedicated IPv4 that browsers dial for WebTransport.')
+  const { cert, privKey, sha256 } = mintCertificate(ip)
+  // Fly routes UDP only to sockets bound to fly-global-services.
+  const udpHost = process.env.FLY_APP_NAME ? (await lookup('fly-global-services', 4)).address : '0.0.0.0'
+  startApi({
+    port: Number(process.env.PORT ?? 8080),
+    host: '0.0.0.0',
+    secure: true,
+    staticDir: 'dist',
+    transport: { url: `https://${ip}:${WT_PORT}/`, sha256 },
+  })
+  await server.listen(await listenHttp3({ port: WT_PORT, host: udpHost, cert, privKey, authorize }))
+  // The listener can't swap certificates, so exit a day before this one expires and let Fly restart us.
+  setTimeout(() => process.exit(0), (CERT_DAYS - 1) * DAY)
+  console.log(`quicdraw ready. page on :${process.env.PORT ?? 8080}, webtransport on ${ip}:${WT_PORT}`)
+} else {
+  startApi({ port: 8787, host: '127.0.0.1', secure: false })
+  await server.listen(await listenDev({ authorize }))
+  console.log('quicdraw ready. api on :8787, page on http://localhost:5173')
+}

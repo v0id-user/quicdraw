@@ -1,9 +1,9 @@
 import { TransportProvider } from '@transport-io/react'
 import { useEffect, useRef, useState } from 'react'
 import { Client } from 'transport-io'
-import { connectDev } from 'transport-io/dev-transport'
 import { type AppMap, contract } from '../shared/contract.ts'
 import { type Session, signIn, signOut } from './auth.ts'
+import { connectWith } from './connect.ts'
 import { Room } from './Room.tsx'
 
 export function App() {
@@ -41,7 +41,7 @@ function Connected({ first }: { first: Session }) {
       new Client<AppMap>({
         contract,
         // Read on every attempt, so a reconnect sends whatever the last sign-in stored.
-        connect: () => connectDev({ query: () => ({ token: token.current }) }),
+        connect: connectWith(() => token.current),
         reconnect: { minMs: 500, maxMs: 5000 },
       }),
   )

@@ -6,6 +6,8 @@
     "dev": "bun run server & bun run web",
     "server": "transport-io dev server/main.ts --port 4432",
     "web": "vite",
+    "build": "vite build",
+    "start": "NODE_ENV=production node server/main.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },

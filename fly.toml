@@ -1,0 +1,36 @@
+app = 'quicdraw'
+primary_region = 'fra'
+
+[env]
+  PORT = '8080'
+
+# One machine, always on: rooms and the board live in memory.
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = false
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    method = 'GET'
+    path = '/api/health'
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+
+# WebTransport. Fly delivers UDP only to a dedicated IPv4, and never rewrites the port.
+[[services]]
+  internal_port = 4433
+  protocol = 'udp'
+
+  [[services.ports]]
+    port = 4433
+
+# The server exits before its 13-day certificate expires, so a clean exit must restart it.
+[[restart]]
+  policy = 'always'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'

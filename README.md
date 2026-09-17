@@ -31,14 +31,46 @@ Everyone in one browser shares a cookie and so a name. Use a private window or a
 | transport-io dev, certificate hash | 4432 |
 | WebTransport | 4433 |
 
+## Deploy to Fly
+
+```bash
+brew install flyctl
+fly auth login
+export TF_VAR_fly_api_token="$(fly auth token)"
+terraform -chdir=infra/fly init
+terraform -chdir=infra/fly apply
+fly secrets set --stage QUICDRAW_SECRET="$(openssl rand -hex 32)" PUBLIC_IPV4="$(terraform -chdir=infra/fly output -raw ipv4)"
+fly deploy --ha=false
+```
+
+Then open https://quicdraw.fly.dev. If the name `quicdraw` is taken, pass `-var app_name=<name>` to Terraform and change `app` in `fly.toml` to match.
+
+What's different from dev:
+
+- **UDP needs a dedicated IPv4.** Fly doesn't route UDP over shared IPv4 or IPv6, so Terraform allocates one. It costs about $2 a month on top of the machine.
+- **The page dials that IPv4 directly.** The `fly.dev` name also resolves to IPv6, where UDP doesn't work.
+- **The server mints its own certificate.** Fly can't terminate TLS for UDP, so on startup the server creates a 13-day self-signed certificate. It serves the hash at `/api/transport` over Fly's HTTPS, and the page pins it, as in dev.
+- **The server restarts itself every 12 days** so the certificate never expires. Fly's restart policy brings it back, and the board and chat reset.
+- **One machine, always on.** Rooms live in memory, so `--ha=false` and auto-stop off.
+
+Try the production build locally:
+
+```bash
+bun run build
+PUBLIC_IPV4=127.0.0.1 bun run start
+```
+
+Then open http://localhost:8080.
+
 ## Layout
 
 - `shared/contract.ts` defines every message and which lane it takes.
 - `server/` holds the realtime server, the sign-in endpoints, and a small test for the puzzle and tokens.
 - `client/` holds the React app.
 - `notes/` holds feedback on transport-io from building this, one file per version.
+- `Dockerfile`, `fly.toml` and `infra/fly/` hold the deploy.
 
-Everything is in memory and development only. Restarting the server clears the board and chat and signs everyone out.
+Everything is in memory. Restarting the server clears the board and chat, and without `QUICDRAW_SECRET` it also signs everyone out.
 
 ```bash
 bun test

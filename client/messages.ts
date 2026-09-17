@@ -7,6 +7,8 @@ export function forUser(e: unknown): string {
   switch (e.code) {
     case 'WT_NO_SUPPORT':
       return 'This browser is not supported. Try Chrome or Firefox.'
+    case 'WT_UDP_UNREACHABLE':
+      return 'Your network blocks the UDP traffic this app needs.'
     case 'WT_PROTOCOL_VERSION_MISMATCH':
     case 'WT_CONTRACT_MISMATCH':
       return 'A new version is available. Reload the page.'
